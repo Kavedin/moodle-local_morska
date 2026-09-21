@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest an accessibility or compatibility improvement for Morska
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Accessibility or learning problem
+      description: Describe the learner, administrator, or course-design problem you want Morska to address.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed improvement
+      description: Describe the capability or behaviour you would find useful.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Moodle reading
+        - H5P
+        - SCORM
+        - Keyboard navigation
+        - Voice / text-to-speech
+        - Auto-highlight / auto-scroll
+        - Visual reading tools
+        - Administration
+        - Licensing / deployment
+        - Other
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Who would benefit?
+      description: Briefly describe the user group or institutional use case.

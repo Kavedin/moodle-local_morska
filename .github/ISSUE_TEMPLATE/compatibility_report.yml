@@ -1,0 +1,53 @@
+name: Compatibility report
+description: Report an H5P, SCORM, Moodle theme, browser, or Moodle-version compatibility issue
+title: "[Compatibility]: "
+labels: ["compatibility"]
+body:
+  - type: input
+    id: morska_version
+    attributes:
+      label: Morska version
+      placeholder: e.g. 3.4.0-beta2
+    validations:
+      required: true
+  - type: input
+    id: moodle_version
+    attributes:
+      label: Moodle version
+    validations:
+      required: true
+  - type: dropdown
+    id: content_type
+    attributes:
+      label: Content environment
+      options:
+        - Moodle core page/activity
+        - H5P
+        - SCORM - eXeLearning
+        - SCORM - Articulate Rise
+        - SCORM - Articulate Storyline
+        - SCORM - Other
+        - Moodle theme
+        - Browser/device
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: content_version
+    attributes:
+      label: Content type, library, authoring tool, or version
+      placeholder: e.g. H5P Interactive Book 1.x or Articulate Rise
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: What works and what does not?
+      description: Explain whether reading, highlighting, scrolling, focus, or keyboard interaction is affected.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction details
+      description: Describe how another tester can reproduce the compatibility issue without using confidential course content.
+    validations:
+      required: true
