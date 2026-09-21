@@ -1,6 +1,6 @@
 # Morska Accessibility Suite
 
-Morska Accessibility Suite (`local_morska`) is a Moodle local plugin designed to extend accessibility support across Moodle course pages and compatible H5P and SCORM learning content.
+Morska Accessibility Suite (`local_morska`) is a Moodle local plugin designed to extend accessibility support, including Text-To-Speech (TTS), across Moodle course pages and compatible H5P and SCORM learning content.
 
 ## Paid subscription product
 
