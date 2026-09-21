@@ -1,0 +1,393 @@
+/*
+ * Morska Accessibility Suite styles.
+ *
+ * @package    local_morska
+ * @copyright  2026 Kufundisha Tecknologia Consults
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+:root{--morska-brand:#f58220;}
+.morska-skip-link {
+    position: absolute;
+    left: -999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+.morska-skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+    width: auto;
+    height: auto;
+    z-index: 10000;
+    background: #fff;
+    color: #000;
+    padding: .75rem 1rem;
+    border: 3px solid #ffbf47;
+}
+.morska-floating-button {
+    position: fixed;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2147483000;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    border: 0;
+    background: #9b0000;
+    color: #fff;
+    font-size: 1.6rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,.35);
+    cursor: grab;
+    touch-action: none;
+}
+.morska-floating-button:active { cursor: grabbing; }
+.morska-floating-button.morska-is-dragging { opacity: .85; }
+
+.morska-panel {
+    position: fixed;
+    right: 5.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2147483001;
+    width: min(390px, calc(100vw - 2rem));
+    max-height: min(78vh, 620px);
+    overflow: hidden;
+    background: #f2f2f2;
+    color: #111;
+    border: 2px solid #555;
+    border-radius: .75rem;
+    padding: .75rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    display: none;
+}
+.morska-panel.is-open { display: block; }
+.morska-panel[data-position="left"] {
+    right: auto;
+    left: 5.25rem;
+}
+.morska-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .45rem;
+}
+.morska-panel h2 {
+    font-size: 1.05rem;
+    margin: 0 0 .3rem;
+    line-height: 1.2;
+}
+#morska-close {
+    border: 0;
+    background: #333;
+    color: #fff;
+    border-radius: .25rem;
+    min-width: 2rem;
+    min-height: 2rem;
+    font-size: 1.2rem;
+}
+.morska-context-row {
+    display: inline-block;
+    background: #eef3f8;
+    border-left: 4px solid #3768a9;
+    color: #1f2d3d;
+    font-size: 0.82rem;
+    padding: 0.28rem 0.45rem;
+    border-radius: .25rem;
+}
+.morska-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .45rem;
+    margin-top: .65rem;
+}
+.morska-actions-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f2f2f2;
+    padding-bottom: .6rem;
+    margin-top: 0;
+    border-bottom: 1px solid #ccc;
+}
+.morska-actions button,
+.morska-small-button {
+    border: 0;
+    border-radius: .35rem;
+    padding: .55rem .4rem;
+    background: #9b0000;
+    color: #fff;
+    font-weight: 700;
+}
+.morska-small-button {
+    background: #fff;
+    color: #111;
+    border: 1px solid #555;
+    margin-top: .45rem;
+    margin-right: .3rem;
+}
+.morska-small-button:disabled,
+.morska-panel button:disabled,
+.morska-panel input:disabled,
+.morska-panel select:disabled {
+    opacity: .58;
+    cursor: not-allowed;
+}
+.morska-suite-sections {
+    max-height: calc(min(78vh, 620px) - 9.5rem);
+    overflow-y: auto;
+    padding-right: .15rem;
+}
+.morska-section {
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: .5rem;
+    margin-top: .55rem;
+    overflow: hidden;
+}
+.morska-section summary {
+    cursor: pointer;
+    font-weight: 800;
+    padding: .65rem .75rem;
+    background: #e2e2e2;
+    color: #111;
+    list-style-position: outside;
+}
+.morska-section[open] summary {
+    background: #d4d4d4;
+    border-bottom: 1px solid #bbb;
+}
+.morska-section-body {
+    padding: .75rem;
+    max-height: 310px;
+    overflow-y: auto;
+}
+.morska-panel label {
+    display: block;
+    font-weight: 700;
+    margin-top: .65rem;
+}
+.morska-panel select,
+.morska-panel input[type="range"] {
+    width: 100%;
+    margin-top: .25rem;
+}
+.morska-panel select {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #777;
+    border-radius: .35rem;
+    padding: .45rem;
+}
+.morska-checkbox {
+    display: flex !important;
+    align-items: center;
+    gap: .45rem;
+    margin: .45rem 0 !important;
+    font-weight: 600 !important;
+}
+.morska-checkbox input {
+    width: auto !important;
+    min-width: 1.1rem;
+    min-height: 1.1rem;
+}
+.morska-secondary-actions {
+    grid-template-columns: 1fr 1fr;
+}
+.morska-note,
+.morska-shortcuts p,
+.morska-section-body p {
+    font-size: .88rem;
+    margin: .35rem 0;
+}
+.morska-coming-soon {
+    font-size: .72rem;
+    padding: .1rem .25rem;
+    border-radius: .25rem;
+    background: #eef3f8;
+    color: #234;
+}
+
+.morska-progress {
+    padding: .35rem .75rem .55rem;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+}
+.morska-progress-label {
+    font-size: .78rem;
+    margin-bottom: .25rem;
+    color: #334;
+}
+.morska-progress-track {
+    height: .45rem;
+    background: #e2e5ea;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.morska-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #9b1c1c;
+    transition: width .25s ease;
+}
+
+.morska-owner {
+    margin-top: .5rem;
+    font-size: .78rem;
+    text-align: center;
+    color: #444;
+}
+.morska-reading-highlight {
+    background: #fff3a3 !important;
+    color: #000 !important;
+    outline: 2px solid #f2c94c;
+    border-radius: 2px;
+}
+.morska-panel button:focus,
+.morska-panel select:focus,
+.morska-panel input:focus,
+.morska-panel summary:focus,
+.morska-floating-button:focus {
+    outline: 3px solid #ffbf47;
+    outline-offset: 2px;
+}
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+}
+@media (max-width: 600px) {
+    .morska-panel {
+        left: 1rem !important;
+        right: 1rem !important;
+        width: auto;
+        max-height: 82vh;
+    }
+    .morska-suite-sections {
+        max-height: calc(82vh - 9.5rem);
+    }
+}
+
+
+/* Morska Vision Toolkit v3.2.2 */
+html.local-morska-high-contrast body {
+    background: #000 !important;
+    color: #fff !important;
+}
+html.local-morska-high-contrast a {
+    color: #8fd1ff !important;
+    text-decoration: underline !important;
+}
+html.local-morska-high-contrast button,
+html.local-morska-high-contrast input,
+html.local-morska-high-contrast select,
+html.local-morska-high-contrast textarea {
+    border: 2px solid #fff !important;
+}
+html.local-morska-high-contrast .morska-panel,
+html.local-morska-high-contrast .morska-panel *,
+html.local-morska-high-contrast .morska-floating-button {
+    filter: none !important;
+}
+html.local-morska-dyslexia-font body,
+html.local-morska-dyslexia-font #page-content,
+html.local-morska-dyslexia-font main,
+html.local-morska-dyslexia-font .course-content {
+    font-family: "OpenDyslexic", "Comic Sans MS", Arial, sans-serif !important;
+}
+html.local-morska-text-adjust #page-content,
+html.local-morska-text-adjust main,
+html.local-morska-text-adjust .course-content,
+html.local-morska-text-adjust .activity-description,
+html.local-morska-text-adjust .book_content,
+html.local-morska-text-adjust .page-content,
+html.local-morska-text-adjust .h5p-content {
+    font-size: calc(1em * var(--morska-text-scale, 1)) !important;
+    line-height: var(--morska-line-spacing, 1.4) !important;
+}
+html.local-morska-magnifier #page-content,
+html.local-morska-magnifier main,
+html.local-morska-magnifier .course-content,
+html.local-morska-magnifier .activity-description,
+html.local-morska-magnifier .book_content,
+html.local-morska-magnifier .page-content {
+    font-size: calc(1em * var(--morska-magnifier-scale, 1.2)) !important;
+}
+#morska-reading-ruler-overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 3.2rem;
+    top: 45%;
+    pointer-events: none;
+    z-index: 2147482998;
+    background: rgba(255, 243, 163, 0.38);
+    border-top: 2px solid rgba(155, 0, 0, .55);
+    border-bottom: 2px solid rgba(155, 0, 0, .55);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, .08);
+}
+html.local-morska-high-contrast #morska-reading-ruler-overlay {
+    background: rgba(255, 255, 0, .32);
+    border-color: #ffff00;
+}
+
+
+#morska-dictation-output {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #9ca3af;
+    border-radius: 6px;
+    padding: 0.5rem;
+    resize: vertical;
+    font-size: 0.9rem;
+}
+
+.morska-section-body select,
+.morska-section-body textarea {
+    margin-bottom: 0.55rem;
+}
+
+.morska-panel .morska-section[data-section="interaction"] summary {
+    background: #e8eef7;
+}
+.morska-panel .morska-section[data-section="interaction"][open] summary {
+    background: #d7e4f4;
+}
+
+/* v3.3.10 focus-driven interaction cue. */
+.morska-interaction-focus {
+    outline: 3px solid #f2c94c !important;
+    outline-offset: 4px !important;
+    box-shadow: 0 0 0 4px rgba(242, 201, 76, 0.25) !important;
+}
+
+
+/* Interaction diagnostics panel (v3.3.11). */
+.morska-diagnostics-output {
+    max-height: 220px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #111;
+    color: #f5f5f5;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 11px;
+    line-height: 1.35;
+    margin-top: 8px;
+}
+.morska-panel kbd {
+    background: #fff;
+    color: #111;
+    border: 1px solid #777;
+    border-radius: 3px;
+    padding: 1px 4px;
+}
