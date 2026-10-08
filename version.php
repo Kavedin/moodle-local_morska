@@ -16,7 +16,7 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Version information for Morska Accessibility Suite.
+ * Version information for Morska Accessibility Suite (TTS).
  *
  * @package    local_morska
  * @copyright  2026 Kufundisha Tecknologia Consults
