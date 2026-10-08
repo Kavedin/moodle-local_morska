@@ -103,7 +103,7 @@ class license_manager {
             'installation_id' => self::ensure_installation_id(),
             'site_url' => $CFG->wwwroot,
             'moodle_version' => isset($CFG->release) ? (string)$CFG->release : '',
-            'plugin_version' => '3.4.0-beta1-marketplace-candidate',
+            'plugin_version' => self::get_plugin_release(),
         ];
     }
 
@@ -215,51 +215,77 @@ class license_manager {
      * @return array
      */
     public static function get_trial_status(bool $refresh = false): array {
-        $firstseen = self::ensure_first_seen();
+        $consent = (bool)get_config('local_morska', 'trial_registration_consent');
         $token = trim((string)get_config('local_morska', 'trial_token'));
         $lastsuccess = (int)get_config('local_morska', 'trial_last_successful_check');
 
-        if ($refresh || $token === '') {
-            try {
-                return self::sync_trial($token === '');
-            } catch (\Throwable $e) {
-                // Continue to the bounded cached/offline logic below.
-            }
+        // Online communication is allowed only when explicitly requested by an
+        // administrator or a scheduled task. Page rendering always calls with false.
+        if ($refresh && ($consent || $token !== '')) {
+            return self::sync_trial($token === '');
         }
 
         $status = (string)(get_config('local_morska', 'trial_server_status') ?: 'notregistered');
         $started = (int)get_config('local_morska', 'trial_started_at');
         $expires = (int)get_config('local_morska', 'trial_expires_at');
-        $remainingdays = (int)get_config('local_morska', 'trial_days_remaining');
 
         if ($lastsuccess > 0) {
-            $within_grace = (time() - $lastsuccess) <= self::GRACE_PERIOD;
+            $withingrace = (time() - $lastsuccess) <= self::GRACE_PERIOD;
             $activebydate = $expires > 0 && time() < $expires;
-            $active = $status === 'trial' && $activebydate && $within_grace;
+            $active = $status === 'trial' && $activebydate && $withingrace;
             return [
                 'active' => $active,
-                'status' => $active ? 'trial' : ($status === 'trial' && !$within_grace ? 'trial_verification_required' : $status),
+                'status' => $active ? 'trial' : ($status === 'trial' && !$withingrace
+                    ? 'trial_verification_required' : $status),
                 'started' => $started,
                 'expires' => $expires,
                 'remainingseconds' => $activebydate ? max(0, $expires - time()) : 0,
                 'remainingdays' => $activebydate ? max(1, (int)ceil(($expires - time()) / DAYSECS)) : 0,
-                'source' => $within_grace ? 'cache' : 'stale',
+                'source' => $withingrace ? 'cache' : 'stale',
                 'lastsuccessfulcheck' => $lastsuccess,
             ];
         }
 
-        // First-contact resilience only. This cannot become a new 15-day trial.
-        $provisional = (time() - $firstseen) <= self::INITIAL_REGISTRATION_GRACE;
+        // A short local grace is available only after an administrator has explicitly
+        // consented to trial registration and the initial registration attempt failed.
+        $firstseen = (int)get_config('local_morska', 'trial_first_seen_at');
+        $provisional = $consent && $firstseen > 0
+            && (time() - $firstseen) <= self::INITIAL_REGISTRATION_GRACE;
         return [
             'active' => $provisional,
             'status' => $provisional ? 'registration_grace' : 'registration_required',
             'started' => $firstseen,
-            'expires' => $firstseen + self::INITIAL_REGISTRATION_GRACE,
-            'remainingseconds' => $provisional ? max(0, ($firstseen + self::INITIAL_REGISTRATION_GRACE) - time()) : 0,
+            'expires' => $firstseen > 0 ? $firstseen + self::INITIAL_REGISTRATION_GRACE : 0,
+            'remainingseconds' => $provisional
+                ? max(0, ($firstseen + self::INITIAL_REGISTRATION_GRACE) - time()) : 0,
             'remainingdays' => $provisional ? 1 : 0,
-            'source' => 'local_registration_grace',
+            'source' => $provisional ? 'local_registration_grace' : 'not_registered',
             'lastsuccessfulcheck' => 0,
         ];
+    }
+
+    /**
+     * Return the installed plugin release string dynamically.
+     *
+     * @return string
+     */
+    private static function get_plugin_release(): string {
+        $installedversion = get_config('local_morska', 'version');
+        if ($installedversion !== false && $installedversion !== '') {
+            return (string)$installedversion;
+        }
+        $plugin = \core_plugin_manager::instance()->get_plugin_info('local_morska');
+        return $plugin && !empty($plugin->versiondisk) ? (string)$plugin->versiondisk : 'unknown';
+    }
+
+    /**
+     * Record explicit administrator consent to contact the KTC trial service.
+     *
+     * @return void
+     */
+    public static function consent_to_trial_registration(): void {
+        set_config('trial_registration_consent', 1, 'local_morska');
+        self::ensure_first_seen();
     }
 
     /**

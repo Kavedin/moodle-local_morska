@@ -32,10 +32,28 @@ require_capability('moodle/site:config', context_system::instance());
 
 $action = optional_param('action', '', PARAM_ALPHAEXT);
 
+if ($action === 'starttrial') {
+    require_sesskey();
+    try {
+        license_manager::consent_to_trial_registration();
+        $trial = license_manager::sync_trial(true);
+        $message = get_string('trialstartresult', 'local_morska', $trial['status']);
+        redirect(new moodle_url('/local/morska/license.php'), $message, null,
+            \core\output\notification::NOTIFY_SUCCESS);
+    } catch (Throwable $e) {
+        redirect(new moodle_url('/local/morska/license.php'), $e->getMessage(), null,
+            \core\output\notification::NOTIFY_ERROR);
+    }
+}
+
 if ($action === 'synctrial') {
     require_sesskey();
     try {
-        $trial = license_manager::sync_trial(false);
+        $token = trim((string)get_config('local_morska', 'trial_token'));
+        if (!(bool)get_config('local_morska', 'trial_registration_consent') && $token === '') {
+            throw new moodle_exception('trialconsentrequired', 'local_morska');
+        }
+        $trial = license_manager::sync_trial($token === '');
         $message = get_string('trialsyncresult', 'local_morska', $trial['status']);
         redirect(new moodle_url('/local/morska/license.php'), $message, null, \core\output\notification::NOTIFY_SUCCESS);
     } catch (Throwable $e) {
@@ -145,6 +163,16 @@ if (!$status['keymatchesverified'] && !$status['trial']['active']) {
     echo $OUTPUT->notification(get_string('licensekeynotverified', 'local_morska'), \core\output\notification::NOTIFY_WARNING);
 }
 echo html_writer::table($table);
+$starttrialbutton = '';
+if (!(bool)get_config('local_morska', 'trial_registration_consent')
+        && trim((string)get_config('local_morska', 'trial_token')) === '') {
+    $starttrialurl = new moodle_url('/local/morska/license.php', ['action' => 'starttrial', 'sesskey' => sesskey()]);
+    $starttrialbutton = html_writer::link(
+        $starttrialurl,
+        get_string('starttrial', 'local_morska'),
+        ['class' => 'btn btn-primary mr-2']
+    );
+}
 $syncurl = new moodle_url('/local/morska/license.php', ['action' => 'synctrial', 'sesskey' => sesskey()]);
 $syncbutton = html_writer::link($syncurl, get_string('synctrial', 'local_morska'), ['class' => 'btn btn-secondary mr-2']);
 $subscribe = html_writer::link(license_manager::get_subscribe_url(), get_string('subscribemorska', 'local_morska'), [
@@ -152,6 +180,6 @@ $subscribe = html_writer::link(license_manager::get_subscribe_url(), get_string(
     'target' => '_blank',
     'rel' => 'noopener noreferrer',
 ]);
-echo html_writer::div($subscribe . ' ' . $syncbutton . ' ' . implode(' ', $buttons), 'mb-3');
+echo html_writer::div($starttrialbutton . ' ' . $subscribe . ' ' . $syncbutton . ' ' . implode(' ', $buttons), 'mb-3');
 echo html_writer::link($settingsurl, get_string('editlicensesettings', 'local_morska'), ['class' => 'btn btn-secondary']);
 echo $OUTPUT->footer();

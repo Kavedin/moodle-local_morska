@@ -1,13 +1,19 @@
 {{!
+    This file is part of Moodle - https://moodle.org/
+
     Morska Accessibility Suite floating widget.
+
+    @template local_morska/widget
+    @copyright 2026 Kufundisha Tecknologia Consults
+    @license https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
-<a href="#morska-panel" class="morska-skip-link" id="morska-skip-link">Skip to Morska Accessibility Suite</a>
+<a href="#morska-panel" class="morska-skip-link" id="morska-skip-link">{{#str}} skiptoaccessibilitysuite, local_morska {{/str}}</a>
 
 <button id="morska-floating-button"
         class="morska-floating-button"
         type="button"
-        aria-label="Open Morska Accessibility Suite"
-        title="Open Morska Accessibility Suite: Alt + Shift + M">
+        aria-label="{{#str}} openaccessibilitysuite, local_morska {{/str}}"
+        title="{{#str}} openaccessibilitysuite_shortcut, local_morska {{/str}}">
     🔊
 </button>
 
@@ -20,197 +26,198 @@
        tabindex="-1">
     <div class="morska-panel-header">
         <div>
-            <h2 id="morska-title">Morska Accessibility Suite</h2>
-            <div class="morska-context-row">Detected: <strong id="morska-context">Current Moodle page</strong></div>
+            <h2 id="morska-title">{{#str}} pluginname, local_morska {{/str}}</h2>
+            <div class="morska-context-row">{{#str}} detectedcontext, local_morska {{/str}} <strong id="morska-context">{{#str}} context_currentpage, local_morska {{/str}}</strong></div>
         </div>
-        <button id="morska-close" type="button" aria-label="Close Morska Accessibility Suite">×</button>
+        <button id="morska-close" type="button" aria-label="{{#str}} closeaccessibilitysuite, local_morska {{/str}}">×</button>
     </div>
 
     <div id="morska-live" class="sr-only" aria-live="polite"></div>
 
-    <div class="morska-actions morska-actions-sticky" role="group" aria-label="Reader controls">
-        <button id="morska-play" type="button">▶ Play</button>
-        <button id="morska-pause" type="button">⏸ Pause</button>
-        <button id="morska-resume" type="button">▶ Resume</button>
-        <button id="morska-stop" type="button">■ Stop</button>
+    {{#module_reader}}
+    <div class="morska-actions morska-actions-sticky" role="group" aria-label="{{#str}} readercontrols, local_morska {{/str}}">
+        <button id="morska-play" type="button">▶ {{#str}} play, local_morska {{/str}}</button>
+        <button id="morska-pause" type="button">⏸ {{#str}} pause, local_morska {{/str}}</button>
+        <button id="morska-resume" type="button">▶ {{#str}} resume, local_morska {{/str}}</button>
+        <button id="morska-stop" type="button">■ {{#str}} stop, local_morska {{/str}}</button>
     </div>
 
-    <div class="morska-progress" aria-label="Reading progress">
-        <div id="morska-progress-label" class="morska-progress-label">No reading active</div>
+    <div class="morska-progress" aria-label="{{#str}} readingprogress, local_morska {{/str}}">
+        <div id="morska-progress-label" class="morska-progress-label">{{#str}} noreadingactive, local_morska {{/str}}</div>
         <div class="morska-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div id="morska-progress-bar" class="morska-progress-bar"></div>
         </div>
     </div>
+    {{/module_reader}}
 
     <div class="morska-suite-sections">
+        {{#module_reader}}
         <details class="morska-section" data-section="reader" open>
-            <summary>🔊 Text-to-Speech Reader</summary>
+            <summary>🔊 {{#str}} section_reader, local_morska {{/str}}</summary>
             <div class="morska-section-body">
-                <label for="morska-voice">Voice</label>
+                <label for="morska-voice">{{#str}} voice, local_morska {{/str}}</label>
                 <select id="morska-voice"></select>
 
-                <label for="morska-mode">Reading mode</label>
+                <label for="morska-mode">{{#str}} readingmode, local_morska {{/str}}</label>
                 <select id="morska-mode">
-                    <option value="smart">Smart current content</option>
-                    <option value="selection">Highlighted text</option>
-                    <option value="visible">Visible page text</option>
-                    <option value="paragraph">Current paragraph</option>
+                    <option value="smart">{{#str}} mode_smart, local_morska {{/str}}</option>
+                    <option value="selection">{{#str}} mode_selection, local_morska {{/str}}</option>
+                    <option value="visible">{{#str}} mode_visible, local_morska {{/str}}</option>
+                    <option value="paragraph">{{#str}} mode_paragraph, local_morska {{/str}}</option>
                 </select>
 
-                <label for="morska-rate">Speed <span id="morska-rate-value">1.0</span>x</label>
+                <label for="morska-rate">{{#str}} speed, local_morska {{/str}} <span id="morska-rate-value">1.0</span>x</label>
                 <input id="morska-rate" type="range" min="0.5" max="2" step="0.1" value="1">
-
-                <label for="morska-pitch">Pitch <span id="morska-pitch-value">1.0</span></label>
+                <label for="morska-pitch">{{#str}} pitch, local_morska {{/str}} <span id="morska-pitch-value">1.0</span></label>
                 <input id="morska-pitch" type="range" min="0.5" max="2" step="0.1" value="1">
-
-                <label for="morska-volume">Volume <span id="morska-volume-value">1.0</span></label>
+                <label for="morska-volume">{{#str}} volume, local_morska {{/str}} <span id="morska-volume-value">1.0</span></label>
                 <input id="morska-volume" type="range" min="0" max="1" step="0.1" value="1">
 
-                <div class="morska-actions morska-secondary-actions" role="group" aria-label="Sentence navigation controls">
-                    <button id="morska-prev" type="button">⏮ Previous</button>
-                    <button id="morska-next" type="button">⏭ Next</button>
+                <div class="morska-actions morska-secondary-actions" role="group" aria-label="{{#str}} sentencenavigationcontrols, local_morska {{/str}}">
+                    <button id="morska-prev" type="button">⏮ {{#str}} previous, local_morska {{/str}}</button>
+                    <button id="morska-next" type="button">⏭ {{#str}} next, local_morska {{/str}}</button>
                 </div>
             </div>
         </details>
+        {{/module_reader}}
 
+        {{#module_vision}}
         <details class="morska-section" data-section="vision">
-            <summary>👁 Vision & Reading Mode</summary>
+            <summary>👁 {{#str}} section_vision, local_morska {{/str}}</summary>
             <div class="morska-section-body">
-                <label class="morska-checkbox"><input id="morska-highlight" type="checkbox" checked> Highlight current sentence</label>
-                <label class="morska-checkbox"><input id="morska-autoscroll" type="checkbox"> Auto-scroll while reading</label>
-                <label class="morska-checkbox"><input id="morska-reading-ruler" type="checkbox"> Reading ruler</label>
-                <label class="morska-checkbox"><input id="morska-high-contrast" type="checkbox"> High contrast</label>
-                <label class="morska-checkbox"><input id="morska-dyslexia-font" type="checkbox"> Dyslexia-friendly font</label>
-
-                <label for="morska-text-size">Text size <span id="morska-text-size-value">1.0</span>x</label>
+                <label class="morska-checkbox"><input id="morska-highlight" type="checkbox" checked> {{#str}} highlightcurrentsentence, local_morska {{/str}}</label>
+                <label class="morska-checkbox"><input id="morska-autoscroll" type="checkbox"> {{#str}} autoscrollwhilereading, local_morska {{/str}}</label>
+                <label class="morska-checkbox"><input id="morska-reading-ruler" type="checkbox"> {{#str}} readingruler, local_morska {{/str}}</label>
+                <label class="morska-checkbox"><input id="morska-high-contrast" type="checkbox"> {{#str}} highcontrast, local_morska {{/str}}</label>
+                <label class="morska-checkbox"><input id="morska-dyslexia-font" type="checkbox"> {{#str}} dyslexiafont, local_morska {{/str}}</label>
+                <label for="morska-text-size">{{#str}} textsize, local_morska {{/str}} <span id="morska-text-size-value">1.0</span>x</label>
                 <input id="morska-text-size" type="range" min="1" max="1.8" step="0.1" value="1">
-
-                <label for="morska-line-spacing">Line spacing <span id="morska-line-spacing-value">1.4</span></label>
+                <label for="morska-line-spacing">{{#str}} linespacing, local_morska {{/str}} <span id="morska-line-spacing-value">1.4</span></label>
                 <input id="morska-line-spacing" type="range" min="1.2" max="2.2" step="0.1" value="1.4">
-
-                <label class="morska-checkbox"><input id="morska-magnifier" type="checkbox"> Magnifier / page zoom</label>
-                <label for="morska-magnifier-size">Magnifier size <span id="morska-magnifier-size-value">1.2</span>x</label>
+                <label class="morska-checkbox"><input id="morska-magnifier" type="checkbox"> {{#str}} magnifierpagezoom, local_morska {{/str}}</label>
+                <label for="morska-magnifier-size">{{#str}} magnifiersize, local_morska {{/str}} <span id="morska-magnifier-size-value">1.2</span>x</label>
                 <input id="morska-magnifier-size" type="range" min="1.1" max="1.6" step="0.1" value="1.2">
             </div>
         </details>
+        {{/module_vision}}
 
+        {{#module_language}}
         <details class="morska-section" data-section="language">
-            <summary>🌍 Language & Translation</summary>
+            <summary>🌍 {{#str}} section_language, local_morska {{/str}}</summary>
             <div class="morska-section-body">
-                <p class="morska-note">Translation helper opens the selected or current content in a translation window. Full institutional translation API support will come later.</p>
-                <label for="morska-source-language">Source language</label>
+                {{#enable_google_translate}}
+                <p class="morska-note morska-external-service-notice">{{#str}} googletranslate_usernotice, local_morska {{/str}}</p>
+                <label for="morska-source-language">{{#str}} sourcelanguage, local_morska {{/str}}</label>
                 <select id="morska-source-language">
-                    <option value="auto">Auto detect</option>
-                    <option value="en">English</option>
-                    <option value="sw">Swahili</option>
+                    <option value="auto">{{#str}} autodetect, local_morska {{/str}}</option>
+                    <option value="en">{{#str}} english, local_morska {{/str}}</option>
+                    <option value="sw">{{#str}} swahili, local_morska {{/str}}</option>
                 </select>
-
-                <label for="morska-target-language">Translate to</label>
+                <label for="morska-target-language">{{#str}} translateto, local_morska {{/str}}</label>
                 <select id="morska-target-language">
-                    <option value="sw">Swahili</option>
-                    <option value="en">English</option>
+                    <option value="sw">{{#str}} swahili, local_morska {{/str}}</option>
+                    <option value="en">{{#str}} english, local_morska {{/str}}</option>
                 </select>
-
-                <button id="morska-translate-selection" class="morska-small-button" type="button">Translate highlighted text</button>
-                <button id="morska-translate-current" class="morska-small-button" type="button">Translate current content</button>
+                <button id="morska-translate-selection" class="morska-small-button" type="button">{{#str}} translatehighlightedtext, local_morska {{/str}}</button>
+                <button id="morska-translate-current" class="morska-small-button" type="button">{{#str}} translatecurrentcontent, local_morska {{/str}}</button>
+                {{/enable_google_translate}}
+                {{^enable_google_translate}}
+                <p class="morska-note">{{#str}} externaltranslationdisabled, local_morska {{/str}}</p>
+                {{/enable_google_translate}}
             </div>
         </details>
+        {{/module_language}}
 
+        {{#module_interaction}}
+        <details class="morska-section" data-section="interaction">
+            <summary>🧩 {{#str}} section_interaction, local_morska {{/str}}</summary>
+            <div class="morska-section-body">
+                <label for="morska-interaction-mode">{{#str}} interactionmode, local_morska {{/str}}</label>
+                <select id="morska-interaction-mode">
+                    <option value="assisted">{{#str}} interaction_assisted, local_morska {{/str}}</option>
+                    <option value="passive">{{#str}} interaction_passive, local_morska {{/str}}</option>
+                </select>
+                <label class="morska-checkbox"><input id="morska-auto-interact" type="checkbox" checked> {{#str}} prepareinteractivecontent, local_morska {{/str}}</label>
+                <button id="morska-prepare-interactions" class="morska-small-button" type="button">{{#str}} preparecurrentscreen, local_morska {{/str}}</button>
+            </div>
+        </details>
+        {{/module_interaction}}
+
+        {{#module_navigation}}
         <details class="morska-section" data-section="navigation">
-            <summary>⌨ Keyboard Navigation</summary>
+            <summary>⌨ {{#str}} section_navigation, local_morska {{/str}}</summary>
             <div class="morska-section-body">
-                <label for="morska-position">Widget position</label>
+                <label for="morska-position">{{#str}} widgetposition, local_morska {{/str}}</label>
                 <select id="morska-position">
-                    <option value="middle-right">Middle right</option>
-                    <option value="middle-left">Middle left</option>
-                    <option value="bottom-right">Bottom right</option>
-                    <option value="bottom-left">Bottom left</option>
+                    <option value="middle-right">{{#str}} position_middleright, local_morska {{/str}}</option>
+                    <option value="middle-left">{{#str}} position_middleleft, local_morska {{/str}}</option>
+                    <option value="bottom-right">{{#str}} position_bottomright, local_morska {{/str}}</option>
+                    <option value="bottom-left">{{#str}} position_bottomleft, local_morska {{/str}}</option>
                 </select>
-                <button id="morska-reset-position" class="morska-small-button" type="button">Reset widget position</button>
-
+                <button id="morska-reset-position" class="morska-small-button" type="button">{{#str}} resetwidgetposition, local_morska {{/str}}</button>
                 <div class="morska-shortcuts">
-                    <p><strong>Alt + Shift + M</strong>: Open or close reader</p>
-                    <p><strong>Alt + Shift + K</strong>: Start Keyboard Listening or repeat keyboard instructions</p>
-                    <p><strong>Ctrl + Shift + P</strong>: Read highlighted text</p>
-                    <p><strong>Ctrl + Shift + R</strong>: Read smart current content</p>
-                    <p><strong>Ctrl + Shift + S</strong>: Stop</p>
-                    <p><strong>Ctrl + Shift + Space</strong>: Pause or resume</p>
-                    <p><strong>Ctrl + Shift + N</strong>: Next sentence</p>
-                    <p><strong>Ctrl + Shift + B</strong>: Previous sentence</p>
-
-                    <p><strong>Tab</strong>: Move to the next navigable content or control</p>
-                    <p><strong>Shift + Tab</strong>: Move to the previous navigable content or control</p>
-                    <p><strong>R</strong>: Read the currently focused item, panel, section, or slide</p>
-                    <p><strong>Enter / Space</strong>: Activate or expand the focused interactive item</p>
-                    <p><strong>Esc</strong>: Stop speech, close reader, or cancel a picked-up drag item</p>
-
-                    <p><strong>N</strong>: Move to the next Articulate Rise lesson</p>
-                    <p><strong>P</strong>: Move to the previous Articulate Rise lesson</p>
-
-                    <p><strong>Right Arrow</strong>: Move to the next tab or slide</p>
-                    <p><strong>Left Arrow</strong>: Move to the previous tab or slide</p>
-                    <p><strong>Home</strong>: Move to the first tab or slide</p>
-                    <p><strong>End</strong>: Move to the last tab or slide</p>
-
-                    <p><strong>Space</strong>: Pick up a focused draggable item</p>
-                    <p><strong>Tab</strong>: Move through available drop targets</p>
-                    <p><strong>Enter</strong>: Drop the selected item on the focused target</p>
-                    <p><strong>Esc</strong>: Cancel the drag operation</p>
+                    <p><strong>Alt + Shift + M</strong>: {{#str}} shortcut_openclose, local_morska {{/str}}</p>
+                    <p><strong>Alt + Shift + K</strong>: {{#str}} shortcut_keyboardlistening, local_morska {{/str}}</p>
+                    <p><strong>Ctrl + Shift + P</strong>: {{#str}} shortcut_readhighlighted, local_morska {{/str}}</p>
+                    <p><strong>Ctrl + Shift + R</strong>: {{#str}} shortcut_readcurrent, local_morska {{/str}}</p>
+                    <p><strong>Ctrl + Shift + S</strong>: {{#str}} stop, local_morska {{/str}}</p>
+                    <p><strong>Ctrl + Shift + Space</strong>: {{#str}} shortcut_pauseresume, local_morska {{/str}}</p>
+                    <p><strong>Tab / Shift + Tab</strong>: {{#str}} shortcut_tabnavigation, local_morska {{/str}}</p>
+                    <p><strong>Enter / Space</strong>: {{#str}} shortcut_activate, local_morska {{/str}}</p>
+                    <p><strong>R</strong>: {{#str}} shortcut_readfocused, local_morska {{/str}}</p>
+                    <p><strong>Esc</strong>: {{#str}} shortcut_escape, local_morska {{/str}}</p>
                 </div>
             </div>
         </details>
+        {{/module_navigation}}
 
+        {{#module_speech}}
         <details class="morska-section" data-section="speech">
-            <summary>🎤 Speech-to-Text</summary>
+            <summary>🎤 {{#str}} section_speech, local_morska {{/str}}</summary>
             <div class="morska-section-body">
-                <p class="morska-note">Speech-to-text works in browsers that support the Web Speech Recognition API, mainly Chrome and Edge.</p>
-                <label for="morska-dictation-language">Dictation language</label>
+                {{#enable_speech_recognition}}
+                <p class="morska-note morska-external-service-notice">{{#str}} speechrecognition_usernotice, local_morska {{/str}}</p>
+                <label for="morska-dictation-language">{{#str}} dictationlanguage, local_morska {{/str}}</label>
                 <select id="morska-dictation-language">
-                    <option value="en-US">English</option>
-                    <option value="sw-KE">Swahili</option>
+                    <option value="en-US">{{#str}} english, local_morska {{/str}}</option>
+                    <option value="sw-KE">{{#str}} swahili, local_morska {{/str}}</option>
                 </select>
-                <div class="morska-actions morska-secondary-actions" role="group" aria-label="Speech to text controls">
-                    <button id="morska-dictate-start" class="morska-small-button" type="button">Start dictation</button>
-                    <button id="morska-dictate-stop" class="morska-small-button" type="button">Stop dictation</button>
+                <div class="morska-actions morska-secondary-actions" role="group" aria-label="{{#str}} speechtotextcontrols, local_morska {{/str}}">
+                    <button id="morska-dictate-start" class="morska-small-button" type="button">{{#str}} startdictation, local_morska {{/str}}</button>
+                    <button id="morska-dictate-stop" class="morska-small-button" type="button">{{#str}} stopdictation, local_morska {{/str}}</button>
                 </div>
-                <label for="morska-dictation-output">Dictation output</label>
-                <textarea id="morska-dictation-output" rows="4" placeholder="Spoken words will appear here"></textarea>
-                <button id="morska-insert-dictation" class="morska-small-button" type="button">Insert into active field</button>
+                <label for="morska-dictation-output">{{#str}} dictationoutput, local_morska {{/str}}</label>
+                <textarea id="morska-dictation-output" rows="4" placeholder="{{#str}} dictationplaceholder, local_morska {{/str}}"></textarea>
+                <button id="morska-insert-dictation" class="morska-small-button" type="button">{{#str}} insertintoactivefield, local_morska {{/str}}</button>
+                {{/enable_speech_recognition}}
+                {{^enable_speech_recognition}}
+                <p class="morska-note">{{#str}} externalspeechdisabled, local_morska {{/str}}</p>
+                {{/enable_speech_recognition}}
             </div>
         </details>
-
-        <details class="morska-section" data-section="ai">
-            <summary>🧠 AI Reading Assistant</summary>
-            <div class="morska-section-body">
-                <p class="morska-note">AI features are planned. They will use selected text or the detected current content.</p>
-                <button class="morska-small-button" type="button" disabled>Explain</button>
-                <button class="morska-small-button" type="button" disabled>Simplify</button>
-                <button class="morska-small-button" type="button" disabled>Summarize</button>
-                <button class="morska-small-button" type="button" disabled>Quiz me</button>
-            </div>
-        </details>
+        {{/module_speech}}
 
         <details class="morska-section" data-section="preferences">
-            <summary>⚙ Preferences</summary>
+            <summary>⚙ {{#str}} section_preferences, local_morska {{/str}}</summary>
             <div class="morska-section-body">
-                <label for="morska-profile">Accessibility profile</label>
+                <label for="morska-profile">{{#str}} accessibilityprofile, local_morska {{/str}}</label>
                 <select id="morska-profile">
-                    <option value="default">Default</option>
-                    <option value="blind">Blind / screen reader user</option>
-                    <option value="lowvision">Low vision</option>
-                    <option value="dyslexia">Dyslexia support</option>
-                    <option value="motor">Motor impairment</option>
-                    <option value="cognitive">Cognitive support</option>
+                    <option value="default">{{#str}} profile_default, local_morska {{/str}}</option>
+                    <option value="blind">{{#str}} profile_blind, local_morska {{/str}}</option>
+                    <option value="lowvision">{{#str}} profile_lowvision, local_morska {{/str}}</option>
+                    <option value="dyslexia">{{#str}} profile_dyslexia, local_morska {{/str}}</option>
+                    <option value="motor">{{#str}} profile_motor, local_morska {{/str}}</option>
+                    <option value="cognitive">{{#str}} profile_cognitive, local_morska {{/str}}</option>
                 </select>
-                <label class="morska-checkbox"><input id="morska-remember" type="checkbox" checked> Remember my settings</label>
+                <label class="morska-checkbox"><input id="morska-remember" type="checkbox" checked> {{#str}} remembermysettings, local_morska {{/str}}</label>
             </div>
         </details>
 
         <details class="morska-section" data-section="about">
-            <summary>❓ Help & About</summary>
+            <summary>❓ {{#str}} section_about, local_morska {{/str}}</summary>
             <div class="morska-section-body">
-                <p><strong>Version:</strong> 3.4.0 beta 1</p>
-                <p><strong>Developer:</strong> Kufundisha Tecknologia Consults (KTC)</p>
+                <p><strong>{{#str}} versionlabel, local_morska {{/str}}</strong> {{version}}</p>
+                <p><strong>{{#str}} developerlabel, local_morska {{/str}}</strong> Kufundisha Tecknologia Consults (KTC)</p>
                 <p class="morska-owner">{{ownership}}</p>
             </div>
         </details>

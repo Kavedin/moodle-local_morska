@@ -1,10 +1,10 @@
 # Morska Accessibility Suite
 
-Morska Accessibility Suite (`local_morska`) is a Moodle local plugin designed to extend accessibility support, including Text-To-Speech (TTS), across Moodle course pages and compatible H5P and SCORM learning content.
+Morska Accessibility Suite (`local_morska`) is a Moodle local plugin designed to extend accessibility support across Moodle course pages and compatible H5P and SCORM learning content.
 
 ## Paid subscription product
 
-**Morska is a paid institutional subscription product.** A new installation receives one server-registered **15-day free trial**. No license key is required during the trial. After the trial, learner-facing Morska services require an active subscription entitlement.
+**Morska is a paid institutional subscription product.** A new installation is eligible for one server-registered **15-day free trial**, started explicitly by a site administrator. No licence key is required during the trial. After the trial, learner-facing Morska services require an active subscription entitlement.
 
 Subscription information and purchase: https://ktc.co.ug/downloads/morska/
 
@@ -25,15 +25,7 @@ Compatibility varies by Moodle version, theme, browser, H5P library, and SCORM a
 
 ## Moodle compatibility
 
-This Marketplace candidate declares support for **Moodle 4.5**. Additional Moodle 5.x branches should be added to `version.php` only after formal validation on those branches.
-
-## Download
-
-For Moodle installation, use the packaged plugin release below:
-
-[Download Morska v3.4.0 Beta 2](https://github.com/Kavedin/moodle-local_morska/releases/download/v3.4.0-beta2/morska_accessibility_suite_v3_4_0_beta2_marketplace_candidate.zip)
-
-> Do not use GitHub's automatically generated "Source code" archives for Moodle installation.
+**Morska 3.4.0 has been tested successfully on Moodle 4.5 and Moodle 5.2.** Compatibility with other Moodle releases should be validated before being claimed as formally tested.
 
 ## Installation
 
@@ -41,15 +33,15 @@ For Moodle installation, use the packaged plugin release below:
 2. In Moodle, go to **Site administration → Plugins → Install plugins**.
 3. Upload the ZIP and complete the Moodle upgrade process.
 4. Review **Site administration → Plugins → Local plugins → Morska Accessibility Suite**.
-5. A new site will automatically attempt to register its 15-day trial with the KTC licensing service.
+5. Open **Morska licence management**, review the trial/privacy notice, and select **Start 15-day trial**. Trial registration is an explicit administrator action; Morska does not contact the licensing service during ordinary page rendering.
 
 ## Trial and subscription activation
 
-During the 15-day trial, the learner-facing accessibility suite is available without a license key.
+The 15-day trial begins only after a site administrator explicitly selects **Start 15-day trial**. During the trial the learner-facing accessibility suite is available without a licence key.
 
 After purchase:
 
-1. Enter the institution name and Morska license key in the plugin settings.
+1. Enter the institution name and Morska licence key in the plugin settings.
 2. Open **Morska licence management**.
 3. Select **Activate licence**.
 4. Morska validates the subscription against the KTC licensing service.
@@ -58,22 +50,23 @@ The plugin uses a bounded offline grace period after a successful entitlement ch
 
 ## External services and privacy
 
-Morska communicates with `https://ktc.co.ug/` for:
+Morska uses external services only for clearly identified functions.
 
-- server-registered trial creation and checking; and
-- paid subscription license activation and checking.
+### KTC licensing and trial service
 
-The entitlement service may receive the following site-level information:
+Morska communicates with `https://ktc.co.ug/` for server-registered trial creation/checking and paid subscription licence activation/checking. The first trial-registration request occurs only after an administrator explicitly starts the trial. Ordinary Moodle page rendering reads cached entitlement state and does not make licensing network requests.
 
-- Morska installation identifier;
-- Moodle site URL;
-- Moodle version;
-- Morska version;
-- trial token;
-- subscription licence key and product identifier; and
-- institution name configured by the site administrator.
+The entitlement service may receive site-level information including the Morska installation identifier, Moodle site URL, Moodle version, installed Morska version, trial token, subscription licence key, and product identifier. Learner names, learner email addresses, grades, course content, and learner activity records are not sent to KTC for licence validation.
 
-Morska does **not** send learner names, learner email addresses, grades, course content, or learner activity records for license validation. Reading preferences used by the client interface are stored locally in the learner's browser. The external service is declared through Moodle's Privacy API in `classes/privacy/provider.php`.
+### Google Translate (optional, disabled by default)
+
+An administrator may enable the Google Translate helper. When enabled, a user who deliberately chooses a Translate action sends the selected or current readable text, source-language selection, and target-language selection to Google Translate in a new browser window. This may include course or user-contributed content. The widget displays an external-service notice before the translation controls.
+
+### Browser speech recognition (optional, disabled by default)
+
+An administrator may enable browser speech recognition for dictation. When a user starts dictation, microphone audio may be processed by the browser vendor or its speech-recognition service. Morska displays an external-service notice before the dictation controls.
+
+These external locations are declared through Moodle's Privacy API in `classes/privacy/provider.php`. Reading preferences used by the client interface are stored locally in the learner's browser.
 
 ## Accessibility and course-design responsibility
 

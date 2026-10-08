@@ -52,8 +52,18 @@ class provider implements
             'trial_token' => 'privacy:metadata:ktclicensing:trialtoken',
             'license_key' => 'privacy:metadata:ktclicensing:licensekey',
             'product_id' => 'privacy:metadata:ktclicensing:productid',
-            'institution' => 'privacy:metadata:ktclicensing:institution',
         ], 'privacy:metadata:ktclicensing');
+
+        $collection->add_external_location_link('googletranslate', [
+            'page_content' => 'privacy:metadata:googletranslate:pagecontent',
+            'source_language' => 'privacy:metadata:googletranslate:sourcelanguage',
+            'target_language' => 'privacy:metadata:googletranslate:targetlanguage',
+        ], 'privacy:metadata:googletranslate');
+
+        $collection->add_external_location_link('browserspeechrecognition', [
+            'microphone_audio' => 'privacy:metadata:browserspeechrecognition:audio',
+            'dictation_language' => 'privacy:metadata:browserspeechrecognition:language',
+        ], 'privacy:metadata:browserspeechrecognition');
 
         return $collection;
     }

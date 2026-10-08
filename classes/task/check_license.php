@@ -45,8 +45,15 @@ class check_license extends \core\task\scheduled_task {
             }
         }
 
+        $token = trim((string)get_config('local_morska', 'trial_token'));
+        $consent = (bool)get_config('local_morska', 'trial_registration_consent');
+        if (!$consent && $token === '') {
+            mtrace('Morska trial registration has not been started by an administrator.');
+            return;
+        }
+
         try {
-            $trial = license_manager::sync_trial(false);
+            $trial = license_manager::sync_trial($token === '');
             mtrace('Morska trial entitlement status: ' . $trial['status']);
         } catch (\Throwable $e) {
             mtrace('Morska trial entitlement check failed: ' . $e->getMessage());

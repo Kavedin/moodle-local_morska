@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,16 +15,24 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Version information for Morska Accessibility Suite.
+ * Hook registrations for Morska Accessibility Suite.
  *
  * @package    local_morska
  * @copyright  2026 Kufundisha Tecknologia Consults
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_morska';
-$plugin->version = 2026100401;
-$plugin->requires = 2024100700; // Moodle 4.5.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.4.0';
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_standard_head_html_generation::class,
+        'callback' => [\local_morska\hook_callbacks::class, 'before_standard_head_html_generation'],
+    ],
+    [
+        'hook' => \core\hook\output\before_standard_top_of_body_html_generation::class,
+        'callback' => [\local_morska\hook_callbacks::class, 'before_standard_top_of_body_html_generation'],
+    ],
+    [
+        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'callback' => [\local_morska\hook_callbacks::class, 'before_footer_html_generation'],
+    ],
+];

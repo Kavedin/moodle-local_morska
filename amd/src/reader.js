@@ -1,3 +1,18 @@
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+
 /**
  * Morska Accessibility Suite reader.
  *
@@ -5,7 +20,53 @@
  * @copyright  2026 Kufundisha Tecknologia Consults
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([], function() {
+define(['core/str'], function(Str) {
+    let enabledModules = {
+        reader: true, vision: true, language: true, navigation: true, speech: true,
+        h5p: true, scorm: true, googletranslate: false, speechrecognition: false
+    };
+    let languageStrings = {};
+    let monitorInterval = null;
+
+    function moduleEnabled(name) {
+        return enabledModules[name] !== false;
+    }
+
+    function t(key, fallback) {
+        return languageStrings[key] || fallback || key;
+    }
+
+    async function loadLanguageStrings() {
+        const keys = [
+            'js_readablechanged','js_readingfinished','js_readingstopped','js_ttsunsupported',
+            'js_noreadablechoose','js_noreadable','js_readingstarted','js_suiteopened','js_suiteclosed',
+            'js_noactivequeue','js_nextsentence','js_previoussentence','js_notexttranslation',
+            'js_translationopened','js_speechunsupported','js_dictationerror','js_dictationstopped',
+            'js_dictationstarted','js_nodictatedtext','js_noactivefield','js_dictationinserted',
+            'js_readingpaused','js_readingresumed','js_profileapplied','js_positionchanged','js_positionreset',
+            'js_nointeractive','js_interactiveprepared','js_context_h5p','js_context_scorm','js_context_book',
+            'js_context_page','js_context_quiz','js_context_course','js_context_current','js_context_genericscorm',
+            'js_keyboardinstructions','js_nofocuseditem','js_noreadableitem','js_activateandread',
+            'js_itemnoreadable','js_enditeminteractive','js_enditem','js_dragcancelled','js_itemactivated',
+            'js_content','js_image','js_expanded','js_collapsed','js_selected','js_draggable',
+            'js_droptarget','js_slide','js_interactivereveal','js_interactiveobject','js_lessonpage',
+            'js_draggableinstructions','js_pressentertodrop','js_here','js_tabthroughactivity',
+            'js_slideinstructions','js_activateinstructions','js_readitemcontinue','js_currentslide',
+            'js_slideword','js_of','js_pressrslide','js_dragselectedzones','js_dragpickedup','js_droppedon',
+            'js_sectionactivated','js_interactiveavailable','js_pressrcontent',
+            'js_forumdiscussion','js_assignmentinstructions','js_newlesson','js_lessonready',
+            'js_nonextlesson','js_nopreviouslesson','js_movingnextlesson','js_movingpreviouslesson'
+        ];
+        try {
+            const values = await Str.getStrings(keys.map(function(key) {
+                return {key: key, component: 'local_morska'};
+            }));
+            keys.forEach(function(key, index) { languageStrings[key] = values[index]; });
+        } catch (e) {
+            // Fallback English text is supplied at each call site.
+        }
+    }
+
     const storageKey = 'local_morska_preferences';
     const positionKey = 'local_morska_widget_position';
     const defaultPosition = 'middle-right';
@@ -28,7 +89,6 @@ define([], function() {
     let preparedInteractionQueue = [];
     let preparedInteractionSignature = '';
     let activeInteractionGroup = null;
-    let interactionDiagnostics = [];
     let interactionStateCounter = 0;
     let focusedInteractive = null;
     let focusedInteractiveType = '';
@@ -861,15 +921,15 @@ define([], function() {
     }
 
     function accessibleContentLabel(element, type) {
-        if (!element) { return 'Content'; }
+        if (!element) { return t('js_content', 'Content'); }
         if (type === 'flashcard') {
             const face = flashcardFaceText(element);
             if (face) { return face; }
         }
         if (type === 'image') {
-            return cleanText(element.getAttribute('alt') || element.getAttribute('aria-label') || element.getAttribute('title') || 'Image');
+            return cleanText(element.getAttribute('alt') || element.getAttribute('aria-label') || element.getAttribute('title') || t('js_image', 'Image'));
         }
-        return cleanText(element.getAttribute('aria-label') || element.getAttribute('title') || element.innerText || element.textContent || 'Content');
+        return cleanText(element.getAttribute('aria-label') || element.getAttribute('title') || element.innerText || element.textContent || t('js_content', 'Content'));
     }
 
     function spokenContentLabel(element, type) {
@@ -878,28 +938,28 @@ define([], function() {
         if (element) {
             const expanded = element.getAttribute('aria-expanded');
             const selected = element.getAttribute('aria-selected');
-            if (expanded === 'true') { state = ' Expanded.'; }
-            else if (expanded === 'false') { state = ' Collapsed.'; }
-            else if (selected === 'true') { state = ' Selected.'; }
+            if (expanded === 'true') { state = ' ' + t('js_expanded', 'Expanded') + '.'; }
+            else if (expanded === 'false') { state = ' ' + t('js_collapsed', 'Collapsed') + '.'; }
+            else if (selected === 'true') { state = ' ' + t('js_selected', 'Selected') + '.'; }
         }
-        const kind = type === 'point-reveal' ? 'interactive reveal' : (type || 'content');
+        const kind = type === 'point-reveal' ? t('js_interactivereveal', 'interactive reveal') : (type || t('js_content', 'content'));
         if (type === 'draggable item') {
-            return label + '. Draggable item. Press Space to pick up this item. Then use Tab to move to a drop target and press Enter to drop it.';
+            return label + '. ' + t('js_draggableinstructions', 'Draggable item. Press Space to pick up this item. Then use Tab to move to a drop target and press Enter to drop it.');
         }
         if (type === 'drop target') {
-            return label + '. Drop target.' + (keyboardDragItem ? ' Press Enter to drop ' + keyboardDragItemLabel + ' here.' : ' Use Tab to move through the activity.') ;
+            return label + '. ' + t('js_droptarget', 'Drop target') + '.' + (keyboardDragItem ? ' ' + t('js_pressentertodrop', 'Press Enter to drop') + ' ' + keyboardDragItemLabel + ' ' + t('js_here', 'here') + '.' : ' ' + t('js_tabthroughactivity', 'Use Tab to move through the activity.'));
         }
         if (type === 'slide') {
-            return label + '. Slide. Use the Left and Right Arrow keys to move between slides. Press R to read the current slide.';
+            return label + '. ' + t('js_slideinstructions', 'Slide. Use the Left and Right Arrow keys to move between slides. Press R to read the current slide.');
         }
         if (isInteractiveContentType(type)) {
-            return label + '. ' + kind + '.' + state + ' Press Enter or Space to activate. Press R to read this item or its revealed content.';
+            return label + '. ' + kind + '.' + state + ' ' + t('js_activateinstructions', 'Press Enter or Space to activate. Press R to read this item or its revealed content.');
         }
-        return label + '. ' + kind + '. Press R to read this item. Press Tab to continue.';
+        return label + '. ' + kind + '. ' + t('js_readitemcontinue', 'Press R to read this item. Press Tab to continue.');
     }
 
     function keyboardListeningInstructions() {
-        return 'Keyboard listening is now on. Use Tab to move forward through page content and controls. Use Shift plus Tab to move backward. Morska will identify the type of each focused item. Press Enter or Space to activate buttons, accordions, tabs, flashcards, and other controls. Press R to read the focused item or revealed content. For slideshows and image sliders, use the Left and Right Arrow keys to move between slides, Home for the first slide, End for the last slide, and R to read the current slide. For drag and drop activities, focus a draggable item and press Space to pick it up, use Tab to reach a drop target, then press Enter to drop it. Press Escape to cancel a picked up item. In Articulate Rise, press N to move to the next lesson and P to move to the previous lesson when available. Press Escape also stops Morska speech. Press Alt plus Shift plus K at any time to hear these keyboard instructions again.';
+        return t('js_keyboardinstructions', 'Keyboard listening is on. Use Tab and Shift plus Tab to move through content and controls. Use Enter or Space to activate controls, R to read the focused item, arrow keys for supported tabs or slides, and Escape to stop speech or cancel an interaction.');
     }
 
     function startKeyboardListening() {
@@ -982,13 +1042,13 @@ define([], function() {
     function readFocusedContent() {
         const trigger = focusedInteractive;
         if (!trigger || !trigger.isConnected) {
-            speakGuidance('No content item is currently focused. Press Tab to move through the page content.');
+            speakGuidance(t('js_nofocuseditem', 'No content item is currently focused. Press Tab to move through the page content.'));
             return;
         }
         const type = focusedInteractiveType || contentTypeForElement(trigger) || 'content';
         const target = type === 'slide' ? currentCarouselSlide(carouselContainerFor(trigger)) || trigger : focusedReadingTarget(trigger, type);
         if (!target) {
-            speakGuidance('No readable content was found for this item. Press Tab to continue.');
+            speakGuidance(t('js_noreadableitem', 'No readable content was found for this item. Press Tab to continue.'));
             return;
         }
         let text = type === 'flashcard' ? flashcardFaceText(trigger) : cleanText(target.innerText || target.textContent || '');
@@ -996,7 +1056,7 @@ define([], function() {
             text = accessibleContentLabel(trigger, type);
         }
         if (!text) {
-            speakGuidance(isInteractiveContentType(type) ? 'Activate this item with Enter or Space, then press R again.' : 'This item does not currently contain readable text. Press Tab to continue.');
+            speakGuidance(isInteractiveContentType(type) ? t('js_activateandread', 'Activate this item with Enter or Space, then press R again.') : t('js_itemnoreadable', 'This item does not currently contain readable text. Press Tab to continue.'));
             return;
         }
         window.speechSynthesis.cancel();
@@ -1009,8 +1069,8 @@ define([], function() {
         };
         readingQueue = buildReadingQueue(text, result, true);
         const instruction = isInteractiveContentType(type)
-            ? 'End of this item. Press Tab to move forward, Shift plus Tab to go back, Enter or Space to activate, or R to read again.'
-            : 'End of this item. Press Tab to move forward, Shift plus Tab to go back, or R to read again.';
+            ? t('js_enditeminteractive', 'End of this item. Press Tab to move forward, Shift plus Tab to go back, Enter or Space to activate, or R to read again.')
+            : t('js_enditem', 'End of this item. Press Tab to move forward, Shift plus Tab to go back, or R to read again.');
         readingQueue.push({
             text: instruction,
             node: null, start: 0, end: 0, document: result.document, frame: result.frame, context: result.context
@@ -1256,13 +1316,13 @@ define([], function() {
             makeReadableContentFocusable(doc);
             const heading = riseLessonHeading(doc);
             if (heading && heading !== previousHeading) {
-                speakGuidance('New lesson loaded. ' + heading + '. Press Tab to begin navigating the lesson.');
+                speakGuidance(t('js_newlesson', 'New lesson loaded.') + ' ' + heading);
                 return;
             }
             if (attempts < 20) {
                 setTimeout(check, 400);
             } else {
-                speakGuidance(heading ? 'Lesson ready. ' + heading + '. Press Tab to begin navigating the lesson.' : 'Lesson ready. Press Tab to begin navigating the lesson.');
+                speakGuidance(t('js_lessonready', 'Lesson ready.') + (heading ? ' ' + heading : ''));
             }
         };
         setTimeout(check, 350);
@@ -1272,12 +1332,12 @@ define([], function() {
         if (!keyboardListeningEnabled || !isArticulateRiseDocument(doc)) { return false; }
         const candidates = riseNavigationCandidates(doc, direction);
         if (!candidates.length) {
-            speakGuidance(direction === 'next' ? 'No next lesson control was found on this page.' : 'No previous lesson control was found on this page.');
+            speakGuidance(direction === 'next' ? t('js_nonextlesson', 'No next lesson control was found on this page.') : t('js_nopreviouslesson', 'No previous lesson control was found on this page.'));
             return true;
         }
         const control = candidates[0];
         const previousHeading = riseLessonHeading(doc);
-        speakGuidance(direction === 'next' ? 'Moving to the next lesson.' : 'Moving to the previous lesson.');
+        speakGuidance(direction === 'next' ? t('js_movingnextlesson', 'Moving to the next lesson.') : t('js_movingpreviouslesson', 'Moving to the previous lesson.'));
         try {
             control.click();
         } catch (e) {
@@ -1350,8 +1410,8 @@ define([], function() {
                 return cleanText(n.innerText || n.textContent || n.getAttribute('alt') || '').length > 0;
             });
             const index = slides.indexOf(slide);
-            const label = accessibleContentLabel(slide, 'slide') || 'Current slide';
-            speakGuidance((index >= 0 && slides.length ? 'Slide ' + (index + 1) + ' of ' + slides.length + '. ' : '') + label + '. Press R to read this slide.');
+            const label = accessibleContentLabel(slide, 'slide') || t('js_currentslide', 'Current slide');
+            speakGuidance((index >= 0 && slides.length ? t('js_slideword', 'Slide') + ' ' + (index + 1) + ' ' + t('js_of', 'of') + ' ' + slides.length + '. ' : '') + label + '. ' + t('js_pressrslide', 'Press R to read this slide.'));
         }, 220);
     }
 
@@ -1502,9 +1562,9 @@ define([], function() {
             source.setAttribute('aria-grabbed', 'true');
             const zones = prepareH5PDropZones(source);
             if (zones.length) {
-                speakGuidance(keyboardDragItemLabel + ' selected. ' + zones.length + ' drop zones are available. Press Tab to move to a drop zone, then press Enter to place the item. Press Escape to cancel.');
+                speakGuidance(keyboardDragItemLabel + ' ' + t('js_dragselectedzones', 'selected. Drop zones are available. Press Tab to move to a drop zone, then press Enter to place the item. Press Escape to cancel.') + ' ' + zones.length);
             } else {
-                speakGuidance(keyboardDragItemLabel + ' picked up. Use Tab to move to a drop target, then press Enter to drop it. Press Escape to cancel.');
+                speakGuidance(keyboardDragItemLabel + ' ' + t('js_dragpickedup', 'picked up. Use Tab to move to a drop target, then press Enter to drop it. Press Escape to cancel.'));
             }
             return true;
         }
@@ -1514,7 +1574,7 @@ define([], function() {
             const targetLabel = dragLabel(target);
             dispatchKeyboardDrop(keyboardDragItem, target);
             clearKeyboardDragSelection();
-            speakGuidance(label + ' dropped on ' + targetLabel + '.');
+            speakGuidance(label + ' ' + t('js_droppedon', 'dropped on') + ' ' + targetLabel + '.');
             return true;
         }
         if (event.key === 'Escape' && keyboardDragItem) {
@@ -1522,13 +1582,14 @@ define([], function() {
             const sourceToRefocus = keyboardDragItem;
             clearKeyboardDragSelection();
             try { sourceToRefocus.focus(); } catch (e) {}
-            speakGuidance('Drag and drop cancelled.');
+            speakGuidance(t('js_dragcancelled', 'Drag and drop cancelled.'));
             return true;
         }
         return false;
     }
 
     function bindUnifiedKeyboardReading(doc) {
+        if (!moduleEnabled('navigation')) { return; }
         if (!doc || !doc.body || doc.body.dataset.morskaFocusedInteractiveBound === '1') {
             return;
         }
@@ -1619,12 +1680,12 @@ define([], function() {
                     if (target && cleanText(target.innerText || target.textContent || '').length > 1) {
                         focusedRevealedTrigger = focusedInteractive;
                         focusedRevealedContent = target;
-                        const state = expanded === 'true' ? 'Expanded. ' : (type === 'tab' ? 'Section activated. ' : 'Interactive content available. ');
-                        speakGuidance(state + 'Press R to read this content.');
+                        const state = expanded === 'true' ? t('js_expanded', 'Expanded') + '. ' : (type === 'tab' ? t('js_sectionactivated', 'Section activated') + '. ' : t('js_interactiveavailable', 'Interactive content available') + '. ');
+                        speakGuidance(state + t('js_pressrcontent', 'Press R to read this content.'));
                     } else {
                         focusedRevealedTrigger = null;
                         focusedRevealedContent = null;
-                        speakGuidance('Item activated. Press R to read the available content.');
+                        speakGuidance(t('js_itemactivated', 'Item activated. Press R to read the available content.'));
                     }
                     makeReadableContentFocusable(doc);
                 }, 180);
@@ -1784,68 +1845,6 @@ define([], function() {
             return after.targetVisible && after.targetTextLength > 0;
         }
         return false;
-    }
-
-    function buildInteractionDiagnosticReport(result) {
-        result = result || getCurrentVisibleElement();
-        const items = getSequentialInteractionItems(result);
-        const report = [];
-        items.forEach(function(item, index) {
-            const state = getInteractionState(item.trigger, item.type, result && result.element);
-            report.push({
-                index: index + 1,
-                type: state.type,
-                label: state.label || '(unlabelled)',
-                activation: state.activation,
-                triggerTag: item.trigger ? item.trigger.tagName : 'none',
-                triggerClass: item.trigger ? String(item.trigger.className || '').slice(0, 120) : '',
-                ariaControls: item.trigger ? item.trigger.getAttribute('aria-controls') : null,
-                expanded: state.before.expanded,
-                selected: state.before.selected,
-                targetFound: state.before.targetFound,
-                targetVisible: state.before.targetVisible,
-                readableChars: state.before.targetTextLength,
-                contentPreview: state.target ? cleanText(readThroughText(state.target, item.trigger)).slice(0, 220) : '',
-                context: result && result.context ? result.context : 'page'
-            });
-        });
-        interactionDiagnostics = report;
-        return report;
-    }
-
-    function formatInteractionDiagnostics(report) {
-        if (!report || !report.length) {
-            return 'No supported interactive objects were detected on the current screen.';
-        }
-        const lines = [];
-        lines.push('Morska Interaction Diagnostics');
-        lines.push('Objects detected: ' + report.length);
-        lines.push('');
-        report.forEach(function(item) {
-            lines.push('#' + item.index + ' ' + item.type.toUpperCase() + ' — ' + item.label);
-            lines.push('  Activation: ' + item.activation);
-            lines.push('  Trigger: ' + item.triggerTag + (item.triggerClass ? ' .' + item.triggerClass.replace(/\s+/g, '.') : ''));
-            lines.push('  aria-controls: ' + (item.ariaControls || 'none'));
-            lines.push('  expanded: ' + (item.expanded === null ? 'n/a' : item.expanded));
-            lines.push('  selected: ' + (item.selected === null ? 'n/a' : item.selected));
-            lines.push('  target found: ' + (item.targetFound ? 'yes' : 'no'));
-            lines.push('  target visible: ' + (item.targetVisible ? 'yes' : 'no'));
-            lines.push('  readable characters: ' + item.readableChars);
-            lines.push('  content preview: ' + (item.contentPreview || 'none'));
-            lines.push('');
-        });
-        return lines.join('\n');
-    }
-
-    function runInteractionDiagnostics() {
-        const result = getCurrentVisibleElement();
-        const report = buildInteractionDiagnosticReport(result);
-        const output = qs('morska-interaction-diagnostics-output');
-        if (output) {
-            output.textContent = formatInteractionDiagnostics(report);
-        }
-        announce(report.length + ' interactive object' + (report.length === 1 ? '' : 's') + ' detected. Diagnostic report updated.');
-        return report;
     }
 
     function interactionLabel(item) {
@@ -2414,10 +2413,9 @@ define([], function() {
         activeInteractionGroup = null;
 
         if (preparedInteractionQueue.length) {
-            announce('Interactive reading sequence prepared with ' + preparedInteractionQueue.length + ' interactive object' +
-                (preparedInteractionQueue.length === 1 ? '' : 's') + '. Press Play to read hidden content where available, with controlled activation only when necessary.');
+            announce(t('js_interactiveprepared', 'Interactive reading sequence prepared.') + ' ' + preparedInteractionQueue.length);
         } else {
-            announce('No supported interactive reading objects were detected on the current screen.');
+            announce(t('js_nointeractive', 'No supported interactive reading objects were detected on the current screen.'));
         }
         return result;
     }
@@ -2562,13 +2560,13 @@ define([], function() {
         const url = doc.location ? doc.location.href : window.location.href;
         const has = function(selector) { return !!doc.querySelector(selector); };
 
-        if (has('.h5p-content, .h5p-container, .h5p-interactive-book, .h5p-course-presentation')) {
+        if (moduleEnabled('h5p') && has('.h5p-content, .h5p-container, .h5p-interactive-book, .h5p-course-presentation')) {
             return 'h5p';
         }
-        if (/mod\/hvp|mod\/h5pactivity/.test(url) || /\bpath-mod-hvp\b|\bpath-mod-h5pactivity\b/.test(bodyClasses)) {
+        if (moduleEnabled('h5p') && (/mod\/hvp|mod\/h5pactivity/.test(url) || /\bpath-mod-hvp\b|\bpath-mod-h5pactivity\b/.test(bodyClasses))) {
             return 'h5p';
         }
-        if (has('#scorm_object, #contentframe, iframe#scorm_object, iframe#contentframe') || /mod\/scorm/.test(url) || /\bpath-mod-scorm\b/.test(bodyClasses)) {
+        if (moduleEnabled('scorm') && (has('#scorm_object, #contentframe, iframe#scorm_object, iframe#contentframe') || /mod\/scorm/.test(url) || /\bpath-mod-scorm\b/.test(bodyClasses))) {
             return 'scorm';
         }
         if (/\bpath-mod-book\b/.test(bodyClasses) || has('.book_content, .book_content_numbered')) {
@@ -2614,6 +2612,7 @@ define([], function() {
     }
 
     function isScormFrame(frame) {
+        if (!moduleEnabled('scorm')) { return false; }
         const id = (frame.id || '').toLowerCase();
         const name = (frame.name || '').toLowerCase();
         const src = (frame.getAttribute('src') || '').toLowerCase();
@@ -2623,6 +2622,7 @@ define([], function() {
     }
 
     function isH5PFrame(frame) {
+        if (!moduleEnabled('h5p')) { return false; }
         const id = (frame.id || '').toLowerCase();
         const name = (frame.name || '').toLowerCase();
         const src = (frame.getAttribute('src') || '').toLowerCase();
@@ -2718,15 +2718,15 @@ define([], function() {
         }
         const result = getCurrentVisibleElement();
         const labels = {
-            h5p: 'H5P interactive screen',
-            scorm: 'SCORM interactive screen',
-            book: 'Moodle Book chapter',
-            page: 'Moodle Page',
-            lesson: 'Lesson page',
-            quiz: 'Quiz content',
-            forum: 'Forum discussion',
-            assignment: 'Assignment instructions',
-            course: 'Course content'
+            h5p: t('js_context_h5p', 'H5P interactive screen'),
+            scorm: t('js_context_scorm', 'SCORM interactive screen'),
+            book: t('js_context_book', 'Moodle Book chapter'),
+            page: t('js_context_page', 'Moodle Page'),
+            lesson: t('js_lessonpage', 'Lesson page'),
+            quiz: t('js_context_quiz', 'Quiz content'),
+            forum: t('js_forumdiscussion', 'Forum discussion'),
+            assignment: t('js_assignmentinstructions', 'Assignment instructions'),
+            course: t('js_context_course', 'Course content')
         };
         const toolLabels = {
             'articulate-rise': 'Articulate Rise',
@@ -2734,9 +2734,9 @@ define([], function() {
             'exelearning': 'eXeLearning',
             'adobe-captivate': 'Adobe Captivate',
             'ispring': 'iSpring',
-            'generic-scorm': 'Generic SCORM'
+            'generic-scorm': t('js_context_genericscorm', 'Generic SCORM')
         };
-        const baseLabel = labels[result.context] || 'Current Moodle page';
+        const baseLabel = labels[result.context] || t('js_context_current', 'Current Moodle page');
         indicator.textContent = result.context === 'scorm' && result.authoringTool ?
             baseLabel + ' · ' + (toolLabels[result.authoringTool] || result.authoringTool) : baseLabel;
     }
@@ -3151,7 +3151,7 @@ define([], function() {
             queueIndex = 0;
             clearHighlight();
             updateProgress();
-            announce('Readable content changed. Reading queue updated.');
+            announce(t('js_readablechanged', 'Readable content changed. Reading queue updated.'));
         }
         return true;
     }
@@ -3200,6 +3200,32 @@ define([], function() {
         });
     }
 
+    function monitoringNeeded() {
+        return isOpen || readingQueue.length > 0 || (window.speechSynthesis && window.speechSynthesis.speaking);
+    }
+
+    function stopMonitorIfIdle() {
+        if (!monitoringNeeded() && monitorInterval !== null) {
+            clearInterval(monitorInterval);
+            monitorInterval = null;
+        }
+    }
+
+    function startMonitorIfNeeded() {
+        if (!monitoringNeeded() || monitorInterval !== null) {
+            return;
+        }
+        monitorInterval = setInterval(function() {
+            if (!monitoringNeeded()) {
+                stopMonitorIfIdle();
+                return;
+            }
+            updateContextIndicator();
+            observeFrameChanges();
+            refreshQueueIfContentChanged(false);
+        }, 2500);
+    }
+
     function configureUtterance(text) {
         utterance = new SpeechSynthesisUtterance(text);
         const voiceSelect = qs('morska-voice');
@@ -3218,7 +3244,9 @@ define([], function() {
             clearHighlight();
             updateProgress();
             if (currentReadingSource) { try { localStorage.removeItem(currentReadingSource); } catch (e) {} }
-            announce('Reading finished.');
+            announce(t('js_readingfinished', 'Reading finished.'));
+            readingQueue = [];
+            stopMonitorIfIdle();
             return;
         }
         queueIndex = index;
@@ -3243,7 +3271,7 @@ define([], function() {
             };
             utterance.onerror = function() {
                 clearHighlight();
-                announce('Reading stopped.');
+                announce(t('js_readingstopped', 'Reading stopped.'));
             };
             window.speechSynthesis.speak(utterance);
         };
@@ -3263,11 +3291,11 @@ define([], function() {
 
     function speak(text) {
         if (!('speechSynthesis' in window)) {
-            announce('Text to speech is not supported in this browser.');
+            announce(t('js_ttsunsupported', 'Text to speech is not supported in this browser.'));
             return;
         }
         if (!text) {
-            announce('No readable text found. Select text or choose visible page text.');
+            announce(t('js_noreadablechoose', 'No readable text found. Select text or choose visible page text.'));
             return;
         }
         window.speechSynthesis.cancel();
@@ -3286,12 +3314,13 @@ define([], function() {
         queueIndex = maybeLoadReadingPosition(result);
         if (!readingQueue.length) {
             updateProgress();
-            announce('No readable text found.');
+            announce(t('js_noreadable', 'No readable text found.'));
             return;
         }
         updateProgress();
         speakQueue(queueIndex);
-        announce('Reading started.');
+        announce(t('js_readingstarted', 'Reading started.'));
+        startMonitorIfNeeded();
     }
 
     function openPanel() {
@@ -3307,7 +3336,8 @@ define([], function() {
         updateContextIndicator();
         const first = qs('morska-play') || panel;
         first.focus();
-        announce('Morska Accessibility Suite opened.');
+        announce(t('js_suiteopened', 'Morska Accessibility Suite opened.'));
+        startMonitorIfNeeded();
     }
 
     function closePanel() {
@@ -3321,7 +3351,8 @@ define([], function() {
         if (lastFocus && typeof lastFocus.focus === 'function') {
             lastFocus.focus();
         }
-        announce('Morska Accessibility Suite closed.');
+        announce(t('js_suiteclosed', 'Morska Accessibility Suite closed.'));
+        stopMonitorIfIdle();
     }
 
     function togglePanel() {
@@ -3354,29 +3385,30 @@ define([], function() {
 
     function nextSentence() {
         if (!readingQueue.length) {
-            announce('No active reading queue.');
+            announce(t('js_noactivequeue', 'No active reading queue.'));
             return;
         }
         window.speechSynthesis.cancel();
         speakQueue(Math.min(queueIndex + 1, readingQueue.length - 1));
-        announce('Next sentence.');
+        announce(t('js_nextsentence', 'Next sentence.'));
     }
 
     function previousSentence() {
         if (!readingQueue.length) {
-            announce('No active reading queue.');
+            announce(t('js_noactivequeue', 'No active reading queue.'));
             return;
         }
         window.speechSynthesis.cancel();
         speakQueue(Math.max(queueIndex - 1, 0));
-        announce('Previous sentence.');
+        announce(t('js_previoussentence', 'Previous sentence.'));
     }
 
 
     function openTranslationWindow(text) {
+        if (!moduleEnabled('googletranslate')) { return; }
         const cleaned = cleanText(text || '');
         if (!cleaned) {
-            announce('No text available for translation.');
+            announce(t('js_notexttranslation', 'No text available for translation.'));
             return;
         }
         const source = qs('morska-source-language')?.value || 'auto';
@@ -3385,13 +3417,14 @@ define([], function() {
         const url = 'https://translate.google.com/?sl=' + encodeURIComponent(source) +
             '&tl=' + encodeURIComponent(target) + '&text=' + encodeURIComponent(limited) + '&op=translate';
         window.open(url, '_blank', 'noopener,noreferrer');
-        announce('Translation window opened.');
+        announce(t('js_translationopened', 'Google Translate opened in a new window.'));
     }
 
     function startDictation() {
+        if (!moduleEnabled('speechrecognition')) { return; }
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            announce('Speech to text is not supported in this browser. Use Chrome or Edge.');
+            announce(t('js_speechunsupported', 'Speech to text is not supported in this browser.'));
             return;
         }
         if (recognition) {
@@ -3419,13 +3452,13 @@ define([], function() {
             }
         };
         recognition.onerror = function() {
-            announce('Dictation error. Check microphone permission.');
+            announce(t('js_dictationerror', 'Dictation error. Check microphone permission.'));
         };
         recognition.onend = function() {
-            announce('Dictation stopped.');
+            announce(t('js_dictationstopped', 'Dictation stopped.'));
         };
         recognition.start();
-        announce('Dictation started.');
+        announce(t('js_dictationstarted', 'Dictation started.'));
     }
 
     function stopDictation() {
@@ -3449,13 +3482,12 @@ define([], function() {
     function insertDictation() {
         const text = qs('morska-dictation-output')?.value || '';
         if (!text) {
-            announce('There is no dictated text to insert.');
+            announce(t('js_nodictatedtext', 'There is no dictated text to insert.'));
             return;
         }
         const field = lastEditableField;
         if (!field) {
-            navigator.clipboard?.writeText(text);
-            announce('No active field found. Dictation copied to clipboard.');
+            announce(t('js_noactivefield', 'No active field found for dictated text.'));
             return;
         }
         if (field.isContentEditable) {
@@ -3468,7 +3500,7 @@ define([], function() {
             field.dispatchEvent(new Event('input', {bubbles: true}));
             field.focus();
         }
-        announce('Dictation inserted.');
+        announce(t('js_dictationinserted', 'Dictation inserted.'));
     }
 
     function bindEvents() {
@@ -3489,49 +3521,36 @@ define([], function() {
             speak(selected || getTextForMode());
             savePrefs();
         });
-        qs('morska-pause')?.addEventListener('click', function() { window.speechSynthesis.pause(); announce('Reading paused.'); });
-        qs('morska-resume')?.addEventListener('click', function() { window.speechSynthesis.resume(); announce('Reading resumed.'); });
-        qs('morska-stop')?.addEventListener('click', function() { window.speechSynthesis.cancel(); clearHighlight(); saveReadingPosition(); updateProgress(); announce('Reading stopped.'); });
+        qs('morska-pause')?.addEventListener('click', function() { window.speechSynthesis.pause(); announce(t('js_readingpaused', 'Reading paused.')); });
+        qs('morska-resume')?.addEventListener('click', function() { window.speechSynthesis.resume(); announce(t('js_readingresumed', 'Reading resumed.')); });
+        qs('morska-stop')?.addEventListener('click', function() { window.speechSynthesis.cancel(); readingQueue = []; clearHighlight(); saveReadingPosition(); updateProgress(); announce(t('js_readingstopped', 'Reading stopped.')); stopMonitorIfIdle(); });
         qs('morska-next')?.addEventListener('click', nextSentence);
         qs('morska-prev')?.addEventListener('click', previousSentence);
         qs('morska-prepare-interactions')?.addEventListener('click', function() {
             prepareInteractiveContent();
-            runInteractionDiagnostics();
             savePrefs();
         });
-        qs('morska-run-interaction-diagnostics')?.addEventListener('click', runInteractionDiagnostics);
         qs('morska-profile')?.addEventListener('change', function(event) {
             applyProfile(event.target.value);
             savePrefs();
-            announce('Accessibility profile applied.');
+            announce(t('js_profileapplied', 'Accessibility profile applied.'));
         });
         qs('morska-position')?.addEventListener('change', function(event) {
             localStorage.removeItem(positionKey);
             setPresetPosition(event.target.value);
             savePrefs();
-            announce('Widget position changed.');
+            announce(t('js_positionchanged', 'Widget position changed.'));
         });
         qs('morska-reset-position')?.addEventListener('click', function() {
             localStorage.removeItem(positionKey);
             setPresetPosition(qs('morska-position')?.value || defaultPosition);
-            announce('Widget position reset.');
+            announce(t('js_positionreset', 'Widget position reset.'));
         });
         qs('morska-translate-selection')?.addEventListener('click', function() { openTranslationWindow(getSelectedText()); savePrefs(); });
         qs('morska-translate-current')?.addEventListener('click', function() { openTranslationWindow(getTextForMode('smart')); savePrefs(); });
         qs('morska-dictate-start')?.addEventListener('click', function() { startDictation(); savePrefs(); });
         qs('morska-dictate-stop')?.addEventListener('click', stopDictation);
         qs('morska-insert-dictation')?.addEventListener('click', insertDictation);
-
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.shiftKey && String(event.key).toLowerCase() === 'd') {
-                event.preventDefault();
-                openPanel();
-                const details = document.querySelector('.morska-section[data-section="interaction"]');
-                if (details) { details.open = true; }
-                runInteractionDiagnostics();
-                qs('morska-run-interaction-diagnostics')?.focus();
-            }
-        });
 
         ['morska-voice', 'morska-mode', 'morska-position', 'morska-rate', 'morska-pitch', 'morska-volume', 'morska-autoscroll', 'morska-highlight', 'morska-reading-ruler', 'morska-high-contrast', 'morska-dyslexia-font', 'morska-magnifier', 'morska-text-size', 'morska-line-spacing', 'morska-magnifier-size', 'morska-source-language', 'morska-target-language', 'morska-dictation-language', 'morska-interaction-mode', 'morska-auto-interact', 'morska-remember'].forEach(function(id) {
             const el = qs(id);
@@ -3560,49 +3579,51 @@ define([], function() {
                 togglePanel();
                 return;
             }
-            if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'p') {
+            if (moduleEnabled('reader') && event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'p') {
                 event.preventDefault();
                 speak(getTextForMode('selection'));
                 return;
             }
-            if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'r') {
+            if (moduleEnabled('reader') && event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'r') {
                 event.preventDefault();
                 speak(getTextForMode('smart'));
                 return;
             }
-            if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 's') {
+            if (moduleEnabled('reader') && event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 's') {
                 event.preventDefault();
                 window.speechSynthesis.cancel();
                 clearHighlight();
                 saveReadingPosition();
                 updateProgress();
-                announce('Reading stopped.');
+                announce(t('js_readingstopped', 'Reading stopped.'));
                 return;
             }
-            if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'n') {
+            if (moduleEnabled('reader') && event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'n') {
                 event.preventDefault();
                 nextSentence();
                 return;
             }
-            if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'b') {
+            if (moduleEnabled('reader') && event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'b') {
                 event.preventDefault();
                 previousSentence();
                 return;
             }
-            if (event.ctrlKey && event.shiftKey && event.code === 'Space') {
+            if (moduleEnabled('reader') && event.ctrlKey && event.shiftKey && event.code === 'Space') {
                 event.preventDefault();
                 if (window.speechSynthesis.paused) {
                     window.speechSynthesis.resume();
-                    announce('Reading resumed.');
+                    announce(t('js_readingresumed', 'Reading resumed.'));
                 } else {
                     window.speechSynthesis.pause();
-                    announce('Reading paused.');
+                    announce(t('js_readingpaused', 'Reading paused.'));
                 }
             }
         });
     }
 
-    function init() {
+    async function init(config) {
+        enabledModules = Object.assign({}, enabledModules, config || {});
+        await loadLanguageStrings();
         if (!qs('morska-floating-button')) {
             return;
         }
@@ -3615,13 +3636,16 @@ define([], function() {
                 updatePanelPosition();
             }
         });
-        populateVoices();
+        if (moduleEnabled('reader')) {
+            populateVoices();
+        }
         applyPrefs();
         restoreSectionState();
         updateContextIndicator();
         updateProgress();
+        // MutationObserver-based change detection is installed once. The heavier periodic
+        // frame/page scan starts only while the panel is open or reading is active.
         observeFrameChanges();
-        setInterval(function() { updateContextIndicator(); observeFrameChanges(); refreshQueueIfContentChanged(false); }, 2500);
         document.addEventListener('mousemove', updateReadingRuler);
         document.addEventListener('focusin', rememberEditableField);
         document.addEventListener('focusin', function(event) {
@@ -3630,7 +3654,7 @@ define([], function() {
                 updateReadingRuler({clientY: rect.top + rect.height / 2});
             }
         });
-        if ('speechSynthesis' in window) {
+        if (moduleEnabled('reader') && 'speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = populateVoices;
         }
     }
